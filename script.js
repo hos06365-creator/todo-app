@@ -60,19 +60,6 @@ function setAuthLoading(isLoading) {
   googleLoginButton.disabled = isLoading;
 }
 
-function getOAuthRedirectTo() {
-  // GitHub Pages의 현재 주소로 돌아오도록 query/hash를 제외한 페이지 경로를 사용합니다.
-  return window.location.origin + window.location.pathname;
-}
-
-function moveToOAuthUrl(url) {
-  if (!url) {
-    throw new Error("Google OAuth 이동 주소를 받지 못했습니다.");
-  }
-
-  window.location.assign(url);
-}
-
 function getErrorMessage(error) {
   if (!error) {
     return "알 수 없는 오류";
@@ -484,23 +471,15 @@ async function signUpWithEmail() {
 
 async function signInWithGoogle() {
   ensureSupabaseClient();
-
-  const redirectTo = getOAuthRedirectTo();
-  console.info("Google OAuth 시작:", redirectTo);
+  console.info("Google OAuth 시작");
 
   const result = await supabaseClient.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: redirectTo,
-      skipBrowserRedirect: true
-    }
+    provider: "google"
   });
 
   if (result.error) {
     throw result.error;
   }
-
-  moveToOAuthUrl(result.data && result.data.url);
 }
 
 // form의 submit 이벤트는 버튼 클릭과 Enter 키 입력을 모두 처리합니다.
