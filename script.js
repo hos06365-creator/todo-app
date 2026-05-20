@@ -4,7 +4,9 @@ const appCard = document.querySelector("#app-card");
 const authForm = document.querySelector("#auth-form");
 const authEmail = document.querySelector("#auth-email");
 const authPassword = document.querySelector("#auth-password");
+const loginButton = authForm.querySelector("button[type='submit']");
 const signupButton = document.querySelector("#signup-button");
+const googleLoginButton = document.querySelector("#google-login-button");
 const authMessage = document.querySelector("#auth-message");
 const userEmail = document.querySelector("#user-email");
 const logoutButton = document.querySelector("#logout-button");
@@ -50,6 +52,25 @@ function setTodoFormLoading(isLoading) {
   prioritySelect.disabled = isLoading;
   todoSubmitButton.disabled = isLoading;
   todoSubmitButton.textContent = isLoading ? "저장 중" : "추가";
+}
+
+function setAuthLoading(isLoading) {
+  loginButton.disabled = isLoading;
+  signupButton.disabled = isLoading;
+  googleLoginButton.disabled = isLoading;
+}
+
+function getOAuthRedirectTo() {
+  // GitHub Pages의 현재 주소로 돌아오도록 query/hash를 제외한 페이지 경로를 사용합니다.
+  return window.location.origin + window.location.pathname;
+}
+
+function moveToOAuthUrl(url) {
+  if (!url) {
+    throw new Error("Google OAuth 이동 주소를 받지 못했습니다.");
+  }
+
+  window.location.assign(url);
 }
 
 function getErrorMessage(error) {
@@ -461,6 +482,27 @@ async function signUpWithEmail() {
   setAuthMessage("회원가입 확인 메일을 보냈습니다. 이메일 인증 후 로그인해 주세요.");
 }
 
+async function signInWithGoogle() {
+  ensureSupabaseClient();
+
+  const redirectTo = getOAuthRedirectTo();
+  console.info("Google OAuth 시작:", redirectTo);
+
+  const result = await supabaseClient.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: redirectTo,
+      skipBrowserRedirect: true
+    }
+  });
+
+  if (result.error) {
+    throw result.error;
+  }
+
+  moveToOAuthUrl(result.data && result.data.url);
+}
+
 // form의 submit 이벤트는 버튼 클릭과 Enter 키 입력을 모두 처리합니다.
 todoForm.addEventListener("submit", async function (event) {
   event.preventDefault();
@@ -493,6 +535,7 @@ todoForm.addEventListener("submit", async function (event) {
 
 authForm.addEventListener("submit", function (event) {
   event.preventDefault();
+  setAuthLoading(true);
   setAuthMessage("로그인 중입니다.");
 
   signInWithEmail()
@@ -503,6 +546,9 @@ authForm.addEventListener("submit", function (event) {
     .catch(function (error) {
       console.error("로그인 실패:", error);
       setAuthMessage("로그인 실패: " + getErrorMessage(error));
+    })
+    .finally(function () {
+      setAuthLoading(false);
     });
 });
 
@@ -511,6 +557,7 @@ signupButton.addEventListener("click", function () {
     return;
   }
 
+  setAuthLoading(true);
   setAuthMessage("회원가입 처리 중입니다.");
 
   signUpWithEmail()
@@ -520,6 +567,23 @@ signupButton.addEventListener("click", function () {
     .catch(function (error) {
       console.error("회원가입 실패:", error);
       setAuthMessage("회원가입 실패: " + getErrorMessage(error));
+    })
+    .finally(function () {
+      setAuthLoading(false);
+    });
+});
+
+googleLoginButton.addEventListener("click", function (event) {
+  event.preventDefault();
+  console.info("Google 로그인 버튼 클릭");
+  setAuthLoading(true);
+  setAuthMessage("Google 로그인 페이지로 이동합니다.");
+
+  signInWithGoogle()
+    .catch(function (error) {
+      console.error("Google 로그인 실패:", error);
+      setAuthMessage("Google 로그인 실패: " + getErrorMessage(error));
+      setAuthLoading(false);
     });
 });
 
