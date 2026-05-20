@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Todo List</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <section id="auth-card" class="todo-card auth-card" aria-labelledby="auth-title">
+      <div class="header">
+        <p class="eyebrow">Today</p>
+        <h1 id="auth-title">Todo List</h1>
+      </div>
+
+      <form id="auth-form" class="auth-form">
+        <input
+          type="email"
+          id="auth-email"
+          placeholder="이메일"
+          autocomplete="email"
+          required
+          aria-label="이메일"
+        >
+        <input
+          type="password"
+          id="auth-password"
+          placeholder="비밀번호"
+          autocomplete="current-password"
+          minlength="6"
+          required
+          aria-label="비밀번호"
+        >
+        <div class="auth-actions">
+          <button type="submit">로그인</button>
+          <button type="button" id="signup-button" class="secondary-button">회원가입</button>
+        </div>
+      </form>
+      <p id="auth-message" class="auth-message" aria-live="polite"></p>
+    </section>
+
+    <section id="app-card" class="todo-card is-hidden" aria-labelledby="app-title">
+      <div class="header">
+        <div class="account-bar">
+          <p id="user-email" class="eyebrow">Today</p>
+          <button type="button" id="logout-button" class="logout-button">로그아웃</button>
+        </div>
+        <h1 id="app-title">Todo List</h1>
+      </div>
+
+      <form id="todo-form" class="todo-form">
+        <input
+          type="text"
+          id="todo-input"
+          placeholder="할 일을 입력하세요"
+          autocomplete="off"
+          aria-label="새 할 일"
+        >
+        <select id="priority-select" aria-label="우선순위 선택">
+          <option value="high">높음</option>
+          <option value="medium" selected>중간</option>
+          <option value="low">낮음</option>
+        </select>
+        <button type="submit">추가</button>
+      </form>
+
+      <ul id="todo-list" class="todo-list" aria-label="할 일 목록"></ul>
+      <p id="storage-status" class="storage-status" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js"></script>
+</body>
+</html>
